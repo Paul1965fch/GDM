@@ -42,6 +42,8 @@ public class Scale_ implements PlugInFilter {
 
 		gd.showDialog();
 		
+		
+		int choice = gd.getNextChoiceIndex();
 		int height_n = (int)gd.getNextNumber(); // _n fuer das neue skalierte Bild
 		int width_n =  (int)gd.getNextNumber();
 		
@@ -59,20 +61,62 @@ public class Scale_ implements PlugInFilter {
 		
 		int[] pix = (int[])ip.getPixels();
 		int[] pix_n = (int[])ip_n.getPixels();
+		
+		double[] ratio = {
+			(double) width / width_n,
+			(double) height / height_n	
+		};
+		
+		System.out.println("width: " + width
+				+ ", height: " + height);
+		System.out.println("width_n: " + width_n
+				+ ", height_n: " + height_n);
+		System.out.println("ratio: " + ratio[0] + "/" + ratio[1]);
+		System.out.println("pix.length: " + pix.length + ", pix_n.length: " + pix_n.length );
 
 		// Schleife ueber das neue Bild
-		for (int y_n=0; y_n<height_n; y_n++) {
-			for (int x_n=0; x_n<width_n; x_n++) {
-				int y = y_n;
-				int x = x_n;
-				
-				if (y < height && x < width) {
-					int pos_n = y_n*width_n + x_n;
-					int pos  =  y  *width   + x;
-				
-					pix_n[pos_n] = pix[pos];
+		switch(choice)  {
+		case 0: // copy
+			for (int y_n = 0; y_n < height_n; y_n++) {
+				for (int x_n = 0; x_n < width_n; x_n++) {
+					
+					int y = y_n;
+					int x = x_n;
+					
+					if (y < height && x < width) {
+						int pos_n = y_n * width_n + x_n;
+						int pos  =  y  *width   + x;
+					
+						pix_n[pos_n] = pix[pos];
+					}
 				}
 			}
+			
+			break;
+		case 1: // nearest neighbour
+			for (int y_n = 0; y_n < height_n; y_n++) {
+				for (int x_n = 0; x_n < width_n; x_n++) {
+					
+					// to decide which pixels we take,
+					// we calculate where we would be
+					// on the scaled image at the
+					// corrseponding ratio and round it.
+					
+					int[] scaled = {
+						(int) Math.floor( x_n * ratio[0] ),	// x
+						(int) Math.floor( y_n * ratio[1] )	// y
+					};
+					
+					int pos = y_n * width_n + x_n;
+					int scaledPos = (int) (scaled[1] * width + scaled[0]);
+					
+					pix_n[pos] = pix[scaledPos];
+				}
+			}
+			
+			break; // pixelwiederholung
+		case 2:
+			break; // bilineare interpolation
 		}
 
 
