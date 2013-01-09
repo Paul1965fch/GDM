@@ -32,22 +32,21 @@ public class Scale_ implements PlugInFilter {
 	}
 
 	public void run(ImageProcessor ip) {
+		
+		int width  = ip.getWidth();  // Breite bestimmen
+		int height = ip.getHeight(); // Hoehe bestimmen
 
 		String[] dropdownmenue = {"Kopie", "Pixelwiederholung", "Bilinear"};
 
 		GenericDialog gd = new GenericDialog("scale");
 		gd.addChoice("Methode",dropdownmenue,dropdownmenue[0]);
-		gd.addNumericField("Breite:",400,0);
-		gd.addNumericField("Hoehe:",500,0);
+		gd.addNumericField("Breite:", width, 0);
+		gd.addNumericField("Hoehe:", height, 0);
 		gd.showDialog();
-		
 		
 		int choice = gd.getNextChoiceIndex();
 		int width_n =  (int)gd.getNextNumber(); // _n fuer das neue skalierte Bild
 		int height_n = (int)gd.getNextNumber();
-		
-		int width  = ip.getWidth();  // Breite bestimmen
-		int height = ip.getHeight(); // Hoehe bestimmen
 
 		//height_n = height;
 		//width_n  = width;
@@ -56,7 +55,6 @@ public class Scale_ implements PlugInFilter {
 		                   width_n, height_n, 1, NewImage.FILL_BLACK);
 		
 		ImageProcessor ip_n = neu.getProcessor();
-
 		
 		int[] pix = (int[])ip.getPixels();
 		int[] pix_n = (int[])ip_n.getPixels();
@@ -129,13 +127,32 @@ public class Scale_ implements PlugInFilter {
 					};
 					
 					double[] distance = {
-						scaled[0] % 1, scaled[1] % 1
+						scaled[0] % 1,
+						scaled[1] % 1
 					};
 					
-					if (y_n % 100 == 0 && x_n % 100 == 0) {
-						System.out.println("scaled[x]: " + scaled[0] + ", scaled[y]: " + scaled[1]);
-						System.out.println("scaled[x] % 1: " + (scaled[0] % 1));
+					int pos = y_n * width_n + x_n;
+					int scaledPos = (int) (Math.floor(scaled[1]) * width + Math.floor(scaled[0]));
+					
+					int argb = pix[scaledPos];
+					int[][] neighbors = new int[4][3];
+					int[] weightedAvg;
+					
+					// we need 4 neighboring pixels, split up into r - g - b
+					for (int i = 0; i < neighbors.length; i++) {
+						for (int j = 0; j < neighbors[i].length; j++) {
+							neighbors[i][j] = ( argb >> (2 - j) ) & 0xff;
+						}
 					}
+					
+					// now calculate the avg…
+					
+					pix_n[pos] = pix[scaledPos];
+					
+//					if (y_n % 100 == 0 && x_n % 100 == 0) {
+//						System.out.println("scaled[x]: " + scaled[0] + ", scaled[y]: " + scaled[1]);
+//						System.out.println("scaled[x] % 1: " + (scaled[0] % 1));
+//					}
 					
 				}
 			}
