@@ -37,15 +37,14 @@ public class Scale_ implements PlugInFilter {
 
 		GenericDialog gd = new GenericDialog("scale");
 		gd.addChoice("Methode",dropdownmenue,dropdownmenue[0]);
-		gd.addNumericField("Hoehe:",500,0);
 		gd.addNumericField("Breite:",400,0);
-
+		gd.addNumericField("Hoehe:",500,0);
 		gd.showDialog();
 		
 		
 		int choice = gd.getNextChoiceIndex();
-		int height_n = (int)gd.getNextNumber(); // _n fuer das neue skalierte Bild
-		int width_n =  (int)gd.getNextNumber();
+		int width_n =  (int)gd.getNextNumber(); // _n fuer das neue skalierte Bild
+		int height_n = (int)gd.getNextNumber();
 		
 		int width  = ip.getWidth();  // Breite bestimmen
 		int height = ip.getHeight(); // Hoehe bestimmen
@@ -53,7 +52,7 @@ public class Scale_ implements PlugInFilter {
 		//height_n = height;
 		//width_n  = width;
 		
-		ImagePlus neu = NewImage.createRGBImage("Skaliertes Bild",
+		ImagePlus neu = NewImage.createRGBImage("Skaliertes Bild (Original: " + width + "×" + height + ")",
 		                   width_n, height_n, 1, NewImage.FILL_BLACK);
 		
 		ImageProcessor ip_n = neu.getProcessor();
@@ -93,6 +92,7 @@ public class Scale_ implements PlugInFilter {
 			}
 			
 			break;
+			
 		case 1: // nearest neighbour
 			for (int y_n = 0; y_n < height_n; y_n++) {
 				for (int x_n = 0; x_n < width_n; x_n++) {
@@ -108,15 +108,39 @@ public class Scale_ implements PlugInFilter {
 					};
 					
 					int pos = y_n * width_n + x_n;
-					int scaledPos = (int) (scaled[1] * width + scaled[0]);
+					int scaledPos = scaled[1] * width + scaled[0];
 					
 					pix_n[pos] = pix[scaledPos];
 				}
 			}
 			
-			break; // pixelwiederholung
-		case 2:
-			break; // bilineare interpolation
+			break;
+			
+		case 2: // bilinear
+			for (int y_n = 0; y_n < height_n; y_n++) {
+				for (int x_n = 0; x_n < width_n; x_n++) {
+					
+					// now we have to see how much of each
+					// neighboring pixel we have to take
+					
+					double[] scaled = {
+						x_n * ratio[0],
+						y_n * ratio[1]
+					};
+					
+					double[] distance = {
+						scaled[0] % 1, scaled[1] % 1
+					};
+					
+					if (y_n % 100 == 0 && x_n % 100 == 0) {
+						System.out.println("scaled[x]: " + scaled[0] + ", scaled[y]: " + scaled[1]);
+						System.out.println("scaled[x] % 1: " + (scaled[0] % 1));
+					}
+					
+				}
+			}
+			
+			break;
 		}
 
 
