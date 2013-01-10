@@ -210,9 +210,7 @@ public class GRDM_U5 implements PlugIn {
 					newR += offset;
 					newG += offset;
 					newB += offset;
-					if (newR < -0 || newG < -0 || newB < -0) {
-						System.out.println("newR: " + newR + ", newG: " + newG + ", newB: " + newB);
-					}
+			
 					// begrenzung wegen overflows bei "unscharf maskieren"
 					if (newR > 255) newR = 255;
 					if (newG > 255) newG = 255;
