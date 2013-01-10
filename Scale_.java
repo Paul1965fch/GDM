@@ -145,9 +145,9 @@ public class Scale_ implements PlugInFilter {
 					}else{
 						int[] temp = {
 								pix[scaledPos],
-								pix[scaledPos-1],
-								pix[scaledPos-width],
-								pix[scaledPos-width-1],
+								pix[scaledPos],
+								pix[scaledPos],
+								pix[scaledPos],
 							};
 						argb = temp;
 					}
@@ -157,7 +157,7 @@ public class Scale_ implements PlugInFilter {
 					// split argb[] up into r - g - b
 					for (int i = 0; i < neighbors.length; i++) {
 						for (int j = 0; j < neighbors[i].length; j++) {
-							neighbors[i][j] = ( argb[i] >> (2 - j) ) & 0xff;
+							neighbors[i][j] = ( argb[i] >> (2 - j) *8) & 0xff;
 						}
 					}
 					
@@ -168,7 +168,6 @@ public class Scale_ implements PlugInFilter {
 					int g = (int) (neighbors[0][1]*(1-distance[0])*(1-distance[1]) + neighbors[1][1]*distance[0]*(1-distance[1]) + neighbors[2][1]*(1-distance[0])*distance[1] + neighbors[3][1]*distance[0]*distance[1]);
 					int b = (int) (neighbors[0][2]*(1-distance[0])*(1-distance[1]) + neighbors[1][2]*distance[0]*(1-distance[1]) + neighbors[2][2]*(1-distance[0])*distance[1] + neighbors[3][2]*distance[0]*distance[1]);
 					pix_n[pos] = (0xff << 24) | (r << 16) | (g << 8) | b;
-					
 //					if (y_n % 100 == 0 && x_n % 100 == 0) {
 //						System.out.println("scaled[x]: " + scaled[0] + ", scaled[y]: " + scaled[1]);
 //						System.out.println("scaled[x] % 1: " + (scaled[0] % 1));
