@@ -22,7 +22,7 @@ public class Scale_ implements PlugInFilter {
 	
 	public static void main(String args[]) {
 		
-		String path = "/home/arnold/IMI/WiSe 12-13/GDM/ImageJ/Bilder/";
+		String path = "";
 		IJ.open(path + "component.jpg");
 		
 		Scale_ scale = new Scale_();
@@ -133,21 +133,41 @@ public class Scale_ implements PlugInFilter {
 					
 					int pos = y_n * width_n + x_n;
 					int scaledPos = (int) (Math.floor(scaled[1]) * width + Math.floor(scaled[0]));
-					
-					int argb = pix[scaledPos];
+					int argb[]; // the 4 pixels around our calculated pixel
+					if(scaledPos < width*height -width-1){
+						int[] temp = {
+								pix[scaledPos],
+								pix[scaledPos+1],
+								pix[scaledPos+width],
+								pix[scaledPos+width+1],
+							};
+						argb = temp;
+					}else{
+						int[] temp = {
+								pix[scaledPos],
+								pix[scaledPos-1],
+								pix[scaledPos-width],
+								pix[scaledPos-width-1],
+							};
+						argb = temp;
+					}
+				
 					int[][] neighbors = new int[4][3];
-					int[] weightedAvg;
 					
-					// we need 4 neighboring pixels, split up into r - g - b
+					// split argb[] up into r - g - b
 					for (int i = 0; i < neighbors.length; i++) {
 						for (int j = 0; j < neighbors[i].length; j++) {
-							neighbors[i][j] = ( argb >> (2 - j) ) & 0xff;
+							neighbors[i][j] = ( argb[i] >> (2 - j) ) & 0xff;
 						}
 					}
 					
 					// now calculate the avg…
 					
-					pix_n[pos] = pix[scaledPos];
+					//P =          A              * (1-h)         * (1-v)          + B              * h         *(1-v)           + C              *(1-h)          *v           + D              *h          *v
+					int r = (int) (neighbors[0][0]*(1-distance[0])*(1-distance[1]) + neighbors[1][0]*distance[0]*(1-distance[1]) + neighbors[2][0]*(1-distance[0])*distance[1] + neighbors[3][0]*distance[0]*distance[1]);
+					int g = (int) (neighbors[0][1]*(1-distance[0])*(1-distance[1]) + neighbors[1][1]*distance[0]*(1-distance[1]) + neighbors[2][1]*(1-distance[0])*distance[1] + neighbors[3][1]*distance[0]*distance[1]);
+					int b = (int) (neighbors[0][2]*(1-distance[0])*(1-distance[1]) + neighbors[1][2]*distance[0]*(1-distance[1]) + neighbors[2][2]*(1-distance[0])*distance[1] + neighbors[3][2]*distance[0]*distance[1]);
+					pix_n[pos] = (0xff << 24) | (r << 16) | (g << 8) | b;
 					
 //					if (y_n % 100 == 0 && x_n % 100 == 0) {
 //						System.out.println("scaled[x]: " + scaled[0] + ", scaled[y]: " + scaled[1]);
