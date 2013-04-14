@@ -210,7 +210,7 @@ public class GLDM_U1 implements PlugIn {
 			int centerX = width / 2;
 			int centerY = height / 2;
 			
-			double alias = 1.5;
+			double alias = 50;
 			
 			for (int y=0; y<height; y++) {
 				// Schleife ueber die x-Werte

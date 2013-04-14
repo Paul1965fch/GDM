@@ -32,7 +32,7 @@ public class GRDM_U2 implements PlugIn {
 	
     public static void main(String args[]) {
 		//new ImageJ();
-    	IJ.open("/Users/Ernesto/Desktop/orchid.jpg");
+    	IJ.open("/Applications/ImageJ/Bilder/Bear.jpg");
     	//IJ.open("Z:/Pictures/Beispielbilder/orchid.jpg");
 		
 		GRDM_U2 pw = new GRDM_U2();
@@ -167,6 +167,12 @@ public class GRDM_U2 implements PlugIn {
 			// Array fuer den Zugriff auf die Pixelwerte
 			int[] pixels = (int[])ip.getPixels();
 			
+			double sinHue;
+			double cosHue;
+			
+			sinHue = Math.sin(Math.toRadians(hue));
+			cosHue =  Math.cos(Math.toRadians(hue));
+			
 			for (int y=0; y<height; y++) {
 				for (int x=0; x<width; x++) {
 					int pos = y*width + x;
@@ -202,8 +208,10 @@ public class GRDM_U2 implements PlugIn {
 					//Crominazwerte nach Vectordrehformel veŠndern
 					//bei 0 und 360 keine VerŠnderung
 					if(hue%360 != 0){
-						Cb = Cb * (Math.cos(Math.toRadians(hue)) - Math.sin(Math.toRadians(hue)) );
-						Cr = Cr * (Math.sin(Math.toRadians(hue)) + Math.cos(Math.toRadians(hue)) );
+						double oldCb = Cb;
+						
+						Cb = Cb * cosHue - Cr * sinHue;
+						Cr = oldCb * sinHue + Cr * cosHue;
 					}
 					
 					// zurŸckrechnen nach RGB
